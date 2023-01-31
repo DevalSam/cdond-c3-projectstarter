@@ -78,7 +78,6 @@ jobs:
       - run:
          name: Run frontend test 
          command: 
-           cd frontend
            npm install
            npm run test 
 
@@ -93,7 +92,6 @@ jobs:
       - run:
          name: Run backend test 
          command: 
-           cd backend
            npm install
            npm run test 
 
@@ -107,7 +105,6 @@ jobs:
       - run:
           name: scan-frontend
           command: 
-            cd frontend
             npm install
             npm audit fix --audit-level-critical
 
@@ -121,7 +118,6 @@ jobs:
       - run:
           name: scan-backend
           command: 
-            cd backend
             npm install
             npm audit fix --audit-level-critical
 
