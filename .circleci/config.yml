@@ -1,46 +1,46 @@
 version: 2.1
 
 commands:
-destroy-environment:
-  description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-  parameters:
-    workflow_id:
-      type: string
-      description: The ID of the workflow whose environment will be destroyed.
-      default: my_workflow
-    events:
-      type: string
-      description: The name of the events that triggered the workflow.
-      default: my_events
-  steps:
-    - run:
-        name: Confirm destruction of environments << parameters.workflow_id >>
-        when: on_fail
-        command: |
-          read -p "Are you sure you want to destroy the environment for workflow ID ${parameters.workflow_id}? [y/n] " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || (echo "Aborted destruction of environment" && exit 1)
-    - run:
-        name: Check cloudformation stacks exist
-        command: |
-          if ! aws cloudformation describe-stacks --stack-name "udapeople-backend-${parameters.workflow_id}" >/dev/null 2>&1; then
-            echo "Backend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
-            exit 0
-          fi
-          if ! aws cloudformation describe-stacks --stack-name "udapeople-frontend-${parameters.workflow_id}" >/dev/null 2>&1; then
-            echo "Frontend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
-            exit 0
-          fi
-    - run:
-        name: Destroy environments << parameters.workflow_id >>
-        command: |
-          echo "Destroying environment: ${parameters.workflow_id}"
-          aws cloudformation delete-stack --stack-name "udapeople-backend-${parameters.workflow_id}"
-          aws cloudformation delete-stack --stack-name "udapeople-frontend-${parameters.workflow_id}"
-        on_fail:
-          - run:
-              name: Error destroying environments << parameters.workflow_id >>
-              command: |
-                echo "Error: Failed to destroy environments for workflow ID ${parameters.workflow_id}"
-                exit 1
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      workflow_id:
+        type: string
+        description: The ID of the workflow whose environment will be destroyed.
+        default: my_workflow
+      events:
+        type: string
+        description: The name of the events that triggered the workflow.
+        default: my_events
+    steps:
+      - run:
+          name: Confirm destruction of environments << parameters.workflow_id >>
+          when: on_fail
+          command: |
+            read -p "Are you sure you want to destroy the environment for workflow ID ${parameters.workflow_id}? [y/n] " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || (echo "Aborted destruction of environment" && exit 1)
+      - run:
+          name: Check cloudformation stacks exist
+          command: |
+            if ! aws cloudformation describe-stacks --stack-name "udapeople-backend-${parameters.workflow_id}" >/dev/null 2>&1; then
+              echo "Backend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
+              exit 0
+            fi
+            if ! aws cloudformation describe-stacks --stack-name "udapeople-frontend-${parameters.workflow_id}" >/dev/null 2>&1; then
+              echo "Frontend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
+              exit 0
+            fi
+      - run:
+          name: Destroy environments << parameters.workflow_id >>
+          command: |
+            echo "Destroying environment: ${parameters.workflow_id}"
+            aws cloudformation delete-stack --stack-name "udapeople-backend-${parameters.workflow_id}"
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-${parameters.workflow_id}"
+          on_fail:
+            - run:
+                name: Error destroying environments << parameters.workflow_id >>
+                command: |
+                  echo "Error: Failed to destroy environments for workflow ID ${parameters.workflow_id}"
+                  exit 1
 
 
   revert-migrations:
