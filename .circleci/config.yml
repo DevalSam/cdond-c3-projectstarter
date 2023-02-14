@@ -43,24 +43,24 @@ destroy-environment:
                 exit 1
 
 
-#   revert-migrations:
-#     description: Revert the last migration if successfully run in the current workflow.
-#     parameters:
-#       workflow_id:
-#         type: string
-#     steps:
-#       - run:
-#           name: Revert migrations
-#           command: |
-#             # Check if there was a successful migration associated with the workflow id
-#             if curl -X GET "https://myapi.com/migrations?workflow_id=$CIRCLE_WORKFLOW_ID" | grep -q 'SUCCESS'; then
-#               cd ~/project/backend
-#               npm install
-#               # Add revert code here
-#               exit 1
-#             fi
-#           environment:
-#             CIRCLE_WORKFLOW_ID: ${{ parameters.workflow_id }}
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow_id:
+        type: string
+    steps:
+      - run:
+          name: Revert migrations
+          command: |
+            # Check if there was a successful migration associated with the workflow id
+            if curl -X GET "https://myapi.com/migrations?workflow_id=$CIRCLE_WORKFLOW_ID" | grep -q 'SUCCESS'; then
+              cd ~/project/backend
+              npm install
+              # Add revert code here
+              exit 1
+            fi
+          environment:
+            CIRCLE_WORKFLOW_ID: ${{ parameters.workflow_id }}
             
 jobs:
   build-frontend:
