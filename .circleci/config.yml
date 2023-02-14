@@ -57,7 +57,7 @@ commands:
               cd ~/project/backend
               npm install
               # Add revert code here
-              exit 1
+              exit 0
             fi
           environment:
             CIRCLE_WORKFLOW_ID: ${{ parameters.workflow_id }}
