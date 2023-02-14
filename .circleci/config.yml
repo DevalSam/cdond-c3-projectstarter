@@ -174,16 +174,12 @@ jobs:
           
   configure-infrastructure:
     docker:
-      # Docker image here that supports Ansible
       - image: python:3.10-alpine3.16
     steps:
-      # Checkout code from git
       - checkout
-      # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
             - "bd:a3:06:7c:4d:fc:9a:96:ca:89:95:8f:fa:a5:a2:81"
-      # attach workspace
       - attach_workspace:
           at: ~/
       - run:
@@ -419,7 +415,7 @@ jobs:
             echo CurrentWorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure  
 
-cleanup:
+  cleanup:
     docker:
       # Docker image here
       - image: amazon/aws-cli
@@ -475,7 +471,7 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
-              only: [test-feature-branch]
+              only: [main]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
