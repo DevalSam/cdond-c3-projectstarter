@@ -7,7 +7,7 @@ commands:
         workflow_id:
           type: string
           description: The ID of the workflow whose environment will be destroyed.
-          default: my_workflow
+          default: workflows
       steps:
         - run:
             name: Confirm destruction of environments << parameters.workflow_id >>
