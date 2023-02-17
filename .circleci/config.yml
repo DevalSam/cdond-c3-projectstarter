@@ -25,18 +25,7 @@ commands:
               echo "Frontend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
               exit 0
             fi
-      - run:
-          name: Destroy environments << parameters.workflow_id >>
-          command: |
-            echo "Destroying environment: ${parameters.workflow_id}"
-            aws cloudformation delete-stack --stack-name "udapeople-backend-${parameters.workflow_id}"
-            aws cloudformation delete-stack --stack-name "udapeople-frontend-${parameters.workflow_id}"
-          on_fail:
-            - run:
-                name: Error destroying environments << parameters.workflow_id >>
-                command: |
-                  echo "Error: Failed to destroy environments for workflow ID ${parameters.workflow_id}"
-                  exit 1
+
 
 
   revert-migrations:
