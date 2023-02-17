@@ -2,35 +2,35 @@ version: 2.1
 
 commands:
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      workflow_id:
-        type: string
-        description: The ID of the workflow whose environment will be destroyed.
-        default: my_workflow
-    steps:
-      - run:
-          name: Confirm destruction of environments << parameters.workflow_id >>
-          when: on_fail
-          command: |
-            read -p "Are you sure you want to destroy the environment for workflow ID ${parameters.workflow_id}? [y/n] " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || (echo "Aborted destruction of environment" && exit 1)
-      - run:
-          name: Check cloudformation stacks exist
-          command: |
-            if ! aws cloudformation describe-stacks --stack-name "udapeople-backend-${parameters.workflow_id}" >/dev/null 2>&1; then
-              echo "Backend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
-              exit 0
-            fi
-            if ! aws cloudformation describe-stacks --stack-name "udapeople-frontend-${parameters.workflow_id}" >/dev/null 2>&1; then
-              echo "Frontend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
-              exit 0
-            fi
-      - run:
-          name: Destroy environments << parameters.workflow_id >>
-          command: |
-            echo "Destroying environment: ${parameters.workflow_id}"
-            aws cloudformation delete-stack --stack-name "udapeople-backend-${parameters.workflow_id}"
-            aws cloudformation delete-stack --stack-name "udapeople-frontend-${parameters.workflow_id}"
+      description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+      parameters:
+        workflow_id:
+          type: string
+          description: The ID of the workflow whose environment will be destroyed.
+          default: my_workflow
+      steps:
+        - run:
+            name: Confirm destruction of environments << parameters.workflow_id >>
+            when: on_fail
+            command: |
+              read -p "Are you sure you want to destroy the environment for workflow ID ${parameters.workflow_id}? [y/n] " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || (echo "Aborted destruction of environment" && exit 1)
+        - run:
+            name: Check cloudformation stacks exist
+            command: |
+              if ! aws cloudformation describe-stacks --stack-name "udapeople-backend-${parameters.workflow_id}" >/dev/null 2>&1; then
+                echo "Backend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
+                exit 0
+              fi
+              if ! aws cloudformation describe-stacks --stack-name "udapeople-frontend-${parameters.workflow_id}" >/dev/null 2>&1; then
+                echo "Frontend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
+                exit 0
+              fi
+        - run:
+            name: Destroy environments << parameters.workflow_id >>
+            command: |
+              echo "Destroying environment: ${parameters.workflow_id}"
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${parameters.workflow_id}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${parameters.workflow_id}"
 
 
   revert-migrations:
@@ -178,6 +178,16 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            SUCCESS=$(curl -s -o /dev/null -w "%{http_code}" https://example.com/migrations/${CIRCLE_WORKFLOW_ID:0:7})
+            if (( $SUCCESS == 200 )); then
+              cd ~/project/backend
+              npm install
+              npx sequelize-cli db:migrate:undo
+            fi
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
               run:
