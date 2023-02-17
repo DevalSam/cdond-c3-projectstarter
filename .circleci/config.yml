@@ -34,24 +34,23 @@ commands:
 
 
   revert-migrations:
-        description: Revert the last migration if successfully run in the current workflow.
-        parameters:
-          workflow-id:
-            description: ID of the workflow to revert migrations for.
-            type: string
-        steps:
-          - checkout
-          - run:
-              name: Revert migrations
-              command: |
-                SUCCESS=$(curl -s -o /dev/null -w "%{http_code}" https://example.com/migrations/${workflow-id})
-                if (( $SUCCESS == 200 )); then
-                  cd ~/project/backend
-                  npm install
-                  npx sequelize-cli db:migrate:undo
-                fi
-
-
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow_id:
+        type: string
+    steps:
+      - run:
+          name: Revert migrations
+          command: |
+            # Check if there was a successful migration associated with the workflow id
+            if curl -X GET "https://myapi.com/migrations?workflow_id=$CIRCLE_WORKFLOW_ID" | grep -q 'SUCCESS'; then
+              cd ~/project/backend
+              npm install
+              # Add revert code here
+              exit 1
+            fi
+          environment:
+            CIRCLE_WORKFLOW_ID: ${{ parameters.workflow_id }}
             
 jobs:
   build-frontend:
