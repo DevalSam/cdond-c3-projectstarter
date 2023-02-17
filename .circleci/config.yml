@@ -34,23 +34,26 @@ commands:
 
 
   revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow.
-    parameters:
-      - name: workflow-id
-        description: ID of the workflow to revert migrations for.
-        type: string
-        required: true
-    steps:
-      - run:
-          name: Revert migrations
-          when: on_success
-          command: |
-            SUCCESS=$(curl -s -o /dev/null -w "%{http_code}" https://example.com/migrations/${workflow-id})
-            if (( $SUCCESS == 200 )); then
-              cd ~/project/backend
-              npm install
-              npx sequelize-cli db:migrate:undo
-            fi
+        description: Revert the last migration if successfully run in the current workflow.
+        parameters:
+          workflow-id:
+            description: ID of the workflow to revert migrations for.
+            type: string
+            required: true
+        docker:
+          - image: circleci/node:latest
+        steps:
+          - checkout
+          - run:
+              name: Revert migrations
+              command: |
+                SUCCESS=$(curl -s -o /dev/null -w "%{http_code}" https://example.com/migrations/${workflow-id})
+                if (( $SUCCESS == 200 )); then
+                  cd ~/project/backend
+                  npm install
+                  npx sequelize-cli db:migrate:undo
+                fi
+
 
             
 jobs:
