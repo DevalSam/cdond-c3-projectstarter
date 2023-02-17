@@ -39,9 +39,6 @@ commands:
           workflow-id:
             description: ID of the workflow to revert migrations for.
             type: string
-            required: true
-        docker:
-          - image: circleci/node:latest
         steps:
           - checkout
           - run:
