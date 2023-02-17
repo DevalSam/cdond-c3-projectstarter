@@ -36,21 +36,22 @@ commands:
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      workflow_id:
+      - name: workflow-id
+        description: ID of the workflow to revert migrations for.
         type: string
+        required: true
     steps:
       - run:
           name: Revert migrations
+          when: on_success
           command: |
-            # Check if there was a successful migration associated with the workflow id
-            if curl -X GET "https://myapi.com/migrations?workflow_id=$CIRCLE_WORKFLOW_ID" | grep -q 'SUCCESS'; then
+            SUCCESS=$(curl -s -o /dev/null -w "%{http_code}" https://example.com/migrations/${workflow-id})
+            if (( $SUCCESS == 200 )); then
               cd ~/project/backend
               npm install
-              # Add revert code here
-              exit 1
+              npx sequelize-cli db:migrate:undo
             fi
-          environment:
-            CIRCLE_WORKFLOW_ID: ${{ parameters.workflow_id }}
+
             
 jobs:
   build-frontend:
@@ -146,8 +147,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       # Checkout code from git
-      - checkout:
-          path: ~/my-repo
+      - checkout
       # install tar and gzip
       - run: yum install tar gzip -y  
       - run:
@@ -181,6 +181,15 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
+          run:
+            name: Destroy environment on failure
+            command: |
+              if [ "${CIRCLE_JOB}" != "deploy-infrastructure" ]; then
+                aws cloudformation delete-stack \
+                  --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+                aws cloudformation delete-stack \
+                  --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+              fi
 
           
   configure-infrastructure:
