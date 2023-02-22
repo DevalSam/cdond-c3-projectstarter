@@ -10,22 +10,6 @@ commands:
           default: my_workflow
       steps:
         - run:
-            name: Confirm destruction of environments << parameters.workflow_id >>
-            when: on_fail
-            command: |
-              read -p "Are you sure you want to destroy the environment for workflow ID ${parameters.workflow_id}? [y/n] " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || (echo "Aborted destruction of environment" && exit 1)
-        - run:
-            name: Check cloudformation stacks exist
-            command: |
-              if ! aws cloudformation describe-stacks --stack-name "udapeople-backend-${parameters.workflow_id}" >/dev/null 2>&1; then
-                echo "Backend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
-                exit 0
-              fi
-              if ! aws cloudformation describe-stacks --stack-name "udapeople-frontend-${parameters.workflow_id}" >/dev/null 2>&1; then
-                echo "Frontend stack does not exist for workflow ID ${parameters.workflow_id}. Skipping deletion."
-                exit 0
-              fi
-        - run:
             name: Destroy environments << parameters.workflow_id >>
             command: |
               echo "Destroying environment: ${parameters.workflow_id}"
@@ -190,17 +174,7 @@ jobs:
             fi
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
-              run:
-                name: Destroy environment on failure
-                when: on_fail
-                command: |
-                  if [ "${CIRCLE_JOB}" != "deploy-infrastructure" ]; then
-                    aws cloudformation delete-stack \
-                      --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
-                    aws cloudformation delete-stack \
-                      --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
-                  fi
-        
+
 #   configure-infrastructure:
 #     docker:
 #       - image: python:3.10-alpine3.16
